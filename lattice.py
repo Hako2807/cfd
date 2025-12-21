@@ -108,5 +108,6 @@ class Lattice:
 
 
     def show(self):
+        self.ax.set_aspect("equal")
         plt.show()
     

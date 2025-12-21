@@ -2,8 +2,8 @@ from lattice import Velocity, VelocityHandler, Lattice, Cell, CellHandler
 
 def main():
     width = 20
-    height = 10
-    pxs = 10
+    height = 30
+    pxs = 40
 
     l = Lattice(width, height, pxs)
     vel_handler = VelocityHandler([width, height], pxs)
