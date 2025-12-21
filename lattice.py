@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as pchs
 from dataclasses import dataclass
 
 @dataclass
@@ -13,11 +14,12 @@ class Cell:
     def __init__(self, id: int):
         self.vels: list[Velocity] = [] # right, up, left, down
         self.id = id
-        
+
         self.pressure = 0
 
-    def get_div(self):
-        return sum(self.vels)
+    def get_flux(self):
+        return self.vels[0].vel + self.vels[1].vel - self.vels[2].vel - self.vels[3].vel
+    
     
 
 class VelocityHandler:
@@ -34,10 +36,10 @@ class VelocityHandler:
         for i in range(2*self.height+1):
             if i % 2 == 1:
                 for j in range(self.width+1):
-                    self.vels.append(Velocity(1, False, [j*self.pxs, i//2*self.pxs+ self.pxs//2]))
+                    self.vels.append(Velocity(np.random.random()-0.5, False, [j*self.pxs, i//2*self.pxs+ self.pxs//2]))
             else:
                 for j in range(self.width):
-                    self.vels.append(Velocity(1, True, [j*self.pxs+ self.pxs//2, i//2*self.pxs]))
+                    self.vels.append(Velocity(np.random.random()-0.5, True, [j*self.pxs+ self.pxs//2, i//2*self.pxs]))
     
     def _get_vel_obj(self, id: int) -> Velocity:
         print(id, len(self.vels))
@@ -82,8 +84,13 @@ class Lattice:
         for i in range(self.height+1):
             self.ax.plot([0, self.pxs*self.width], [i*self.pxs]*2, "r")
     
-    def draw_cell(self, i, j):
-        self.ax.plot(i*self.pxs+ self.pxs/2, j * self.pxs + self.pxs/2, "bo")
+    def draw_cell(self, id, cell_handler):
+        c = 0.5- cell_handler.cells[id].get_flux()/8
+        # c = 1 if cell_handler.cells[id].get_flux() > 0 else 0.5
+        print(c)
+        rect = pchs.Rectangle((id % self.width * self.pxs,id // self.width*self.pxs), self.pxs, self.pxs, color=(c, 0.8, 0.1))
+        self.ax.add_patch(rect)
+        self.ax.text(id % self.width * self.pxs+ self.pxs//4, id // self.width*self.pxs+ self.pxs//4, f"{cell_handler.cells[id].get_flux():.1f}")
 
     def draw_velocity(self, vel_handler: VelocityHandler):
         xpos_list = []

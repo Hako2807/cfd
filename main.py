@@ -8,14 +8,17 @@ def main():
     l = Lattice(width, height, pxs)
     vel_handler = VelocityHandler([width, height], pxs)
     cell_handler = CellHandler([width, height])
-
+    
+    l.draw_grid()
     for cell in cell_handler.cells:
         vel_handler.append_vel_objs_to_cell(cell)
 
 
-
-    l.draw_grid()
+    for i in range(width * height):
+        l.draw_cell(i, cell_handler)
+    
     l.draw_velocity(vel_handler)
+
     l.show()
 
     return
