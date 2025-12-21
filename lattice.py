@@ -2,48 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 
-class Lattice:
-    def __init__(self, width: int, height: int) -> None:
-        self.width: int = width
-        self.height: int = height
-
-        self.pxs = 10
-        self.fig, self.ax = plt.subplots()
-
-
-    def draw_grid(self) -> None:
-        for i in range(self.width+1):
-            self.ax.plot([0, self.pxs*self.height], [i*self.pxs]*2, "r")
-        for i in range(self.height+1):
-            self.ax.plot([i*self.pxs]*2, [0, self.pxs*self.width], "r")
-
-    
-    def draw_cell(self, i, j):
-        self.ax.plot(i*self.pxs+ self.pxs/2, j * self.pxs + self.pxs/2, "bo")
-
-    def draw_velocity(self, id, n):
-        xpos_list = np.array([1])*self.pxs + self.pxs/2
-        ypos_list = np.array([4])*self.pxs
-        x_angle_list = [1]
-        y_angle_list = [0]
-        if (id // n) % 2 == 0:
-            self.ax.quiver(xpos_list, ypos_list, x_angle_list, y_angle_list, )
-        elif (id // n) % 2 == 1:
-            self.ax.quiver([[id*self.pxs], [id // n * self.pxs]], [0], [1])
-
-
-    def show(self):
-        plt.show()
-    
-
-
-l = Lattice(10, 10)
-l.draw_grid()
-l.draw_cell(0,5)
-l.draw_cell(2,6)
-l.draw_velocity(100, 10)
-l.show()
-
 @dataclass
 class Velocity:
     vel: float
@@ -51,13 +9,10 @@ class Velocity:
     pos: list[int, int]
 
 
-
-
 class Cell:
-    def __init__(self, id: int, n: int):
-
+    def __init__(self, id: int):
         self.vels: list[Velocity] = [] # right, up, left, down
-        
+        self.id = id
         
         self.pressure = 0
 
@@ -76,15 +31,16 @@ class VelocityHandler:
 
 
     def _init_vels(self):
-        for i in range(self.height):
-            if i % 2 == 0:
-                for j in range(self.width):
-                    self.vels.append(Velocity(0, False, [i*self.pxs+self.pxs//2, j*self.pxs]))
-            else:
+        for i in range(2*self.height+1):
+            if i % 2 == 1:
                 for j in range(self.width+1):
-                    self.vels.append(Velocity(0, True, [i*self.pxs, j*self.pxs+self.pxs//2]))
+                    self.vels.append(Velocity(1, False, [j*self.pxs, i//2*self.pxs+ self.pxs//2]))
+            else:
+                for j in range(self.width):
+                    self.vels.append(Velocity(1, True, [j*self.pxs+ self.pxs//2, i//2*self.pxs]))
     
     def _get_vel_obj(self, id: int) -> Velocity:
+        print(id, len(self.vels))
         return self.vels[id]
     
 
@@ -94,3 +50,56 @@ class VelocityHandler:
                      self._get_vel_obj(vel_id+self.width), 
                      self._get_vel_obj(vel_id+self.width+1), 
                      self._get_vel_obj(vel_id+2*self.width+1)]
+        
+class CellHandler:
+    def __init__(self, grid_size: list[int, int]):
+        self.cells = []
+        self.width = grid_size[0]
+        self.height = grid_size[1]
+
+        self._make_cells()
+
+    def _make_cells(self):
+        for i in range(self.width*self.height):
+            self.cells.append(Cell(i))
+
+
+
+
+class Lattice:
+    def __init__(self, width: int, height: int, pxs: int) -> None:
+        self.width: int = width
+        self.height: int = height
+        self.pxs: int = pxs
+
+        self.fig, self.ax = plt.subplots()
+
+
+    def draw_grid(self) -> None:
+        for i in range(self.width+1):
+            self.ax.plot([i*self.pxs]*2, [0, self.pxs*self.height], "r")
+
+        for i in range(self.height+1):
+            self.ax.plot([0, self.pxs*self.width], [i*self.pxs]*2, "r")
+    
+    def draw_cell(self, i, j):
+        self.ax.plot(i*self.pxs+ self.pxs/2, j * self.pxs + self.pxs/2, "bo")
+
+    def draw_velocity(self, vel_handler: VelocityHandler):
+        xpos_list = []
+        ypos_list = []
+        x_angle_list = []
+        y_angle_list = []
+
+        for vel in vel_handler.vels:
+            xpos_list.append(vel.pos[0])
+            ypos_list.append(vel.pos[1])
+            x_angle_list.append(int(not vel.is_vertical)*vel.vel)
+            y_angle_list.append(int(vel.is_vertical)*vel.vel)
+        
+        self.ax.quiver(xpos_list, ypos_list, x_angle_list, y_angle_list)
+
+
+    def show(self):
+        plt.show()
+    
