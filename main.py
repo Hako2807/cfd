@@ -2,7 +2,7 @@ from lattice import Velocity, VelocityHandler, Lattice, Cell, CellHandler
 
 def main():
     width = 20
-    height = 30
+    height = 20
     pxs = 40
 
     l = Lattice(width, height, pxs)
