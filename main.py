@@ -14,6 +14,11 @@ def main():
         vel_handler.append_vel_objs_to_cell(cell)
 
 
+    print(f"{cell_handler.cells[0].get_flux()}, {cell_handler.cells[1].get_flux()}, {vel_handler.vels[width+1].vel}, {cell_handler.cells[0].get_flux()+cell_handler.cells[1].get_flux()}")
+    vel_handler.vels[width+1].vel = 1
+    print(f"{cell_handler.cells[0].get_flux()}, {cell_handler.cells[1].get_flux()}, {vel_handler.vels[width+1].vel}, {cell_handler.cells[0].get_flux()+cell_handler.cells[1].get_flux()}")
+
+
     for i in range(width * height):
         l.draw_cell(i, cell_handler)
     

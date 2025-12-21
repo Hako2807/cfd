@@ -42,7 +42,7 @@ class VelocityHandler:
                     self.vels.append(Velocity(np.random.random()-0.5, True, [j*self.pxs+ self.pxs//2, i//2*self.pxs]))
     
     def _get_vel_obj(self, id: int) -> Velocity:
-        print(id, len(self.vels))
+        # print(id, len(self.vels))
         return self.vels[id]
     
 
@@ -87,7 +87,6 @@ class Lattice:
     def draw_cell(self, id, cell_handler):
         c = 0.5- cell_handler.cells[id].get_flux()/8
         # c = 1 if cell_handler.cells[id].get_flux() > 0 else 0.5
-        print(c)
         rect = pchs.Rectangle((id % self.width * self.pxs,id // self.width*self.pxs), self.pxs, self.pxs, color=(c, 0.8, 0.1))
         self.ax.add_patch(rect)
         self.ax.text(id % self.width * self.pxs+ self.pxs//4, id // self.width*self.pxs+ self.pxs//4, f"{cell_handler.cells[id].get_flux():.1f}")
